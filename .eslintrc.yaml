@@ -1,0 +1,5 @@
+extends:
+  - '@bmatei/eslint-config/nestjs.yaml'
+
+parserOptions:
+  project: ./tsconfig.json

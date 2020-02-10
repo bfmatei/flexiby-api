@@ -1,0 +1,13 @@
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUzMWY5YmE4LWIyNDEtNGQ5Mi1iZjhmLWRiMGRkNjQ2ZTUxMSIsInVzZXJuYW1lIjoiYm9nZGFuIiwiaWF0IjoxNTgxMjc5ODMyLCJleHAiOjE1ODEyNzk4MzV9.-XyVv4C1wrBdpuQn65TH1nLhumZHMZwL8jTzWQwxDCo
+
+{
+  "firstName": "Bogdan",
+  "lastName": "Matei",
+  "email": "bogdan@dogar.dev",
+  "username": "bogdan",
+  "password": "test"
+}
+
+###
