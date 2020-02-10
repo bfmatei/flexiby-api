@@ -20,8 +20,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
+  private isExpired(payload: JwtPayload): boolean {
+    return payload.exp - payload.iat <= 0;
+  }
+
   async validate(payload: JwtPayload): Promise<UserDto> {
-    console.log(payload);
+    if (this.isExpired(payload)) {
+      throw new UnauthorizedException();
+    }
 
     const user = await this.authService.getUserById(payload.id);
 

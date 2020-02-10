@@ -1,11 +1,13 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+
+import { ConfigModule } from '~core/config/config.module';
 
 import { databaseProvider } from './database.provider';
 
 const providers = [databaseProvider];
 
-@Global()
 @Module({
+  imports: [ConfigModule],
   providers,
   exports: providers
 })

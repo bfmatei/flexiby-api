@@ -1,5 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
-// import { AuthGuard } from '@nestjs/passport';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { UserInsertDto } from './dto/user-insert.dto';
@@ -13,7 +13,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard())
   @ApiBearerAuth()
   @ApiOkResponse({ type: UserDto })
   async insert(@Body() body: UserInsertDto): Promise<UserDto> {

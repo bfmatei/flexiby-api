@@ -28,10 +28,18 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload: JwtPayload = { id: user.id, username: user.username };
+    const payload: Partial<JwtPayload> = { id: user.id };
+
+    const encodedToken = this.jwtService.sign(payload);
+
+    const decodedToken = this.jwtService.decode(encodedToken) as JwtPayload;
 
     return {
-      token: this.jwtService.sign(payload),
+      token: {
+        value: encodedToken,
+        iat: decodedToken.iat,
+        exp: decodedToken.exp
+      },
       user: this.usersService.entityToDto(user)
     };
   }

@@ -61,8 +61,6 @@ export class UsersService {
 
     const dbUser = await this.userRepository.save(result);
 
-    console.log(dbUser);
-
     return this.entityToDto(dbUser);
   }
 

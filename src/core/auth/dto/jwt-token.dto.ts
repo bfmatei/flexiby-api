@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export abstract class BaseDto {
+export class JwtTokenDto {
   @ApiProperty()
-  id: string;
+  value: string;
 
   @ApiProperty()
-  createdAt: Date;
+  iat: number;
 
   @ApiProperty()
-  updatedAt: Date;
+  exp: number;
 }
