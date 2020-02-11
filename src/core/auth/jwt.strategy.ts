@@ -2,6 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Observable, from, throwError } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { JwtPayload } from '~core/auth/auth.model';
 import { AuthService } from '~core/auth/auth.service';
@@ -24,17 +26,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return payload.exp - payload.iat <= 0;
   }
 
-  async validate(payload: JwtPayload): Promise<UserDto> {
+  validate(payload: JwtPayload): Observable<UserDto> {
     if (this.isExpired(payload)) {
-      throw new UnauthorizedException();
+      return throwError(new UnauthorizedException());
     }
 
-    const user = await this.authService.getUserById(payload.id);
+    return from(this.authService.getUserById(payload.id)).pipe(
+      map((user) => {
+        if (!user) {
+          throw new UnauthorizedException();
+        }
 
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
-    return user;
+        return user;
+      })
+    );
   }
 }

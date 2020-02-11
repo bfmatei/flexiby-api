@@ -1,6 +1,8 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import { Observable, combineLatest, from, throwError, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { Repository } from 'typeorm';
 
 import { UserInsertDto } from './dto/user-insert.dto';
@@ -22,62 +24,81 @@ export class UsersService {
     );
   }
 
-  async existsByUsername(username: string): Promise<boolean> {
-    return (
-      (await this.userRepository.count({
+  existsByUsername(username: string): Observable<boolean> {
+    return from(
+      this.userRepository.count({
         where: {
           username
         }
-      })) > 0
-    );
+      })
+    ).pipe(map((count) => count > 0));
   }
 
-  async existsByEmail(email: string): Promise<boolean> {
-    return (
-      (await this.userRepository.count({
+  existsByEmail(email: string): Observable<boolean> {
+    return from(
+      this.userRepository.count({
         where: {
           email
         }
-      })) > 0
+      })
+    ).pipe(map((count) => count > 0));
+  }
+
+  insert(user: UserInsertDto): Observable<UserDto> {
+    const existsByEmail$ = from(this.existsByEmail(user.email));
+    const existsByUsername$ = from(this.existsByUsername(user.username));
+
+    return combineLatest([existsByEmail$, existsByUsername$]).pipe(
+      switchMap(([emailUsed, usernameUsed]) => {
+        if (emailUsed) {
+          return throwError(new BadRequestException('Email is used'));
+        }
+
+        if (usernameUsed) {
+          return throwError(new BadRequestException('Username is used'));
+        }
+
+        return of(true);
+      }),
+      switchMap(() =>
+        from(bcrypt.genSalt(this.passwordRounds)).pipe(
+          switchMap((password) =>
+            from(bcrypt.hash(user.password, password)).pipe(
+              switchMap((encodedPassword) =>
+                from(
+                  this.userRepository.save(
+                    this.userRepository.create({
+                      ...user,
+                      password: encodedPassword
+                    })
+                  )
+                ).pipe(map((userEntity) => this.entityToDto(userEntity)))
+              )
+            )
+          )
+        )
+      )
     );
   }
 
-  async insert(user: UserInsertDto): Promise<UserDto> {
-    if (await this.existsByEmail(user.email)) {
-      throw new BadRequestException('Email is used');
-    }
-
-    if (await this.existsByUsername(user.username)) {
-      throw new BadRequestException('Username is used');
-    }
-
-    const result = this.userRepository.create({
-      ...user,
-      password: await bcrypt.hash(
-        user.password,
-        await bcrypt.genSalt(this.passwordRounds)
-      )
-    });
-
-    const dbUser = await this.userRepository.save(result);
-
-    return this.entityToDto(dbUser);
+  findOneById(id: string): Observable<UserEntity> {
+    return from(
+      this.userRepository.findOne({
+        where: {
+          id
+        }
+      })
+    );
   }
 
-  async findOneById(id: string): Promise<UserEntity> {
-    return this.userRepository.findOne({
-      where: {
-        id
-      }
-    });
-  }
-
-  async findOneByUsername(username: string): Promise<UserEntity> {
-    return this.userRepository.findOne({
-      where: {
-        username
-      }
-    });
+  findOneByUsername(username: string): Observable<UserEntity> {
+    return from(
+      this.userRepository.findOne({
+        where: {
+          username
+        }
+      })
+    );
   }
 
   entityToDto(user: UserEntity): UserDto {
