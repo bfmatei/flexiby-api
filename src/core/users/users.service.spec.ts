@@ -1,9 +1,8 @@
 import { Test } from '@nestjs/testing';
 
-import { ConfigModule } from '~core/config/config.module';
-import { DatabaseModule } from '~core/database/database.module';
+import { ConfigModule } from '../config/config.module';
+import { DatabaseModule } from '../database/database.module';
 
-import { usersRepository } from './users.repository';
 import { UsersService } from './users.service';
 
 describe('[Core][Users] Service', () => {
@@ -12,7 +11,7 @@ describe('[Core][Users] Service', () => {
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       imports: [ConfigModule, DatabaseModule],
-      providers: [usersRepository, UsersService]
+      providers: [UsersService]
     }).compile();
 
     service = module.get<UsersService>(UsersService);

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { UserDto } from '~core/users/dto/user.dto';
+import { UserDto } from '../../users/dto/user.dto';
 
 import { JwtTokenDto } from './jwt-token.dto';
 

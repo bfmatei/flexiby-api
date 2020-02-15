@@ -1,11 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
 import { Observable, from, of, throwError } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 
-import { UserDto } from '~core/users/dto/user.dto';
-import { UsersService } from '~core/users/users.service';
+import { UserDto } from '../users/dto/user.dto';
+import { UsersService } from '../users/users.service';
+import { UnauthorizedExceptionCodes } from '../exceptions/unauthorized-exception';
 
 import { JwtPayload } from './auth.model';
 import { LoginSuccessDto } from './dto/login-success.dto';
@@ -24,36 +24,28 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<LoginSuccessDto> {
-    return from(this.usersService.findOneByUsername(username)).pipe(
+    return this.usersService.findOneByUsernameAndPassword(username, password).pipe(
       switchMap((userEntity) => {
         if (!userEntity) {
-          return throwError(new UnauthorizedException());
+          return throwError(
+            new UnauthorizedException(UnauthorizedExceptionCodes.INVALID_USER_PASSWORD)
+          );
         }
 
-        return from(bcrypt.compare(password, userEntity.password)).pipe(
-          switchMap((passwordMatch) => {
-            if (!passwordMatch) {
-              return throwError(new UnauthorizedException());
-            }
+        const payload: Partial<JwtPayload> = { id: userEntity.id };
 
-            const payload: Partial<JwtPayload> = { id: userEntity.id };
+        const encodedToken = this.jwtService.sign(payload);
 
-            const encodedToken = this.jwtService.sign(payload);
+        const decodedToken = this.jwtService.decode(encodedToken) as JwtPayload;
 
-            const decodedToken = this.jwtService.decode(
-              encodedToken
-            ) as JwtPayload;
-
-            return of({
-              token: {
-                value: encodedToken,
-                iat: decodedToken.iat,
-                exp: decodedToken.exp
-              },
-              user: this.usersService.entityToDto(userEntity)
-            });
-          })
-        );
+        return of({
+          token: {
+            value: encodedToken,
+            iat: decodedToken.iat,
+            exp: decodedToken.exp
+          },
+          user: this.usersService.entityToDto(userEntity)
+        });
       })
     );
   }

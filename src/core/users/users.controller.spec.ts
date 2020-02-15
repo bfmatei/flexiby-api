@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { CoreModule } from '~core/core.module';
+import { CoreModule } from '../core.module';
 
 import { UsersController } from './users.controller';
 

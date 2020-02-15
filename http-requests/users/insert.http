@@ -1,6 +1,6 @@
 POST http://localhost:3000/api/v1/users
 Content-Type: application/json
-#Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUzNjI1YjFiLWE1NmQtNGE3NC1hODkwLWFmYmM5M2EwOWUyMCIsImlhdCI6MTU4MTM2NTI2OSwiZXhwIjoxNTgxMzY4ODY5fQ.FTXLIV4jlv5VLov8ld5ktSHYym5MsCZKS1Vsgj8QtX4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImUzNWI1ZmZjLTYzMTgtNDYwNy1hMGNiLWVmYTExNDQ3MGE0OCIsImlhdCI6MTU4MTQ2Mjc0NiwiZXhwIjoxNTgxNDY2MzQ2fQ.5-L6NAOy1F8LbMmaF2nayKSYxZxrdvqGnGBnxdnj1b0
 
 {
   "firstName": "Bogdan",

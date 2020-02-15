@@ -7,15 +7,15 @@ import * as helmet from 'helmet';
 
 import { AppModule } from '~app/app.module';
 import { ConfigModule } from '~core/config/config.module';
+import { ValidationException } from '~core/exceptions/validation-exception';
+import * as filters from '~core/filters';
 import { swaggerConfig } from '~helpers/swagger-config';
 
 // eslint-disable-next-line max-statements
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const configService: ConfigService = app
-    .select(ConfigModule)
-    .get(ConfigService);
+  const configService: ConfigService = app.select(ConfigModule).get(ConfigService);
 
   // Enable CORS
   app.enableCors({
@@ -36,21 +36,22 @@ async function bootstrap() {
   // Enable response compression (via compression package)
   app.use(compression());
 
+  app.useGlobalFilters(...Object.values(filters).map((Filter) => new Filter()));
+
   // Enable entity validation (via class-validator package)
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      exceptionFactory: (errors) => new ValidationException(errors)
+    })
+  );
 
   // Set API prefix
   app.setGlobalPrefix(configService.get<string>('APP_PREFIX'));
 
   // Configure Swagger
   if (configService.get<string>('SWAGGER_ENABLE').toLowerCase() === 'true') {
-    swaggerConfig(
-      app,
-      configService.get<string>('SWAGGER_PATH'),
-      configService.get<string>('SWAGGER_TITLE'),
-      configService.get<string>('SWAGGER_DESCRIPTION'),
-      configService.get<string>('SWAGGER_VERSION')
-    );
+    swaggerConfig(app, configService);
   }
 
   // Start application
