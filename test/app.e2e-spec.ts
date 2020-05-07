@@ -7,7 +7,7 @@ import { AppModule } from '~app/app.module';
 import { ResponseStatus } from './helpers/response-status';
 
 describe('AppController (e2e)', () => {
-  let app: INestApplication;
+  let app: INestApplication = null;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -20,9 +20,6 @@ describe('AppController (e2e)', () => {
   });
 
   it('/ (GET)', async () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(ResponseStatus.OK)
-      .expect('Hello World!');
+    return request(app.getHttpServer()).get('/').expect(ResponseStatus.OK).expect('Hello World!');
   });
 });

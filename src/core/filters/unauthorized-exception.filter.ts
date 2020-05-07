@@ -9,7 +9,7 @@ export class UnauthorizedExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     response.status(exception.getStatus()).json({
-      code: exception.message.message
+      code: exception.message
     });
   }
 }

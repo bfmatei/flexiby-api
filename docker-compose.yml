@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: . # The context is the whole project
+      target: dev # Point only to the dev image from Dockerfile
+    command: npm run start # Since the dev image doesn't have a start command, pass it here
+    volumes:
+      - .:/usr/src/app # Mount the project directory in the container in order to have files updated during the development process
+      - /usr/src/app/node_modules # Ensure that the host's node_modules folder does not override the container's node_modules folder
+    ports:
+      - 3000:3000 # Expose the app port
+      - 9229:9229 # Expose the NodeJS debugging port
+    networks:
+      - net  # Add the app container to the same network as the PostgreSQL container
+    depends_on:
+      - pg # Ensure that necessary containers are up before starting the app container
+
+  pg:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: flexiby
+      POSTGRES_PASSWORD: flex
+      POSTGRES_DB: flexiby
+      PG_DATA: /var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data # Mount the PostgreSQL data volume
+    ports:
+      - 5432:5432 # Expose the PostgreSQL port
+    networks:
+      - net # Add the PostgreSQL container to the same network as the app container
+
+# Create a network to allow the containers to communicate between them
+networks:
+  net:
+
+# Create a volume for PostgreSQL data to persist it
+volumes:
+  pgdata:

@@ -6,7 +6,7 @@ import { DatabaseModule } from '../database/database.module';
 import { UsersService } from './users.service';
 
 describe('[Core][Users] Service', () => {
-  let service: UsersService;
+  let service: UsersService = null;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -14,7 +14,7 @@ describe('[Core][Users] Service', () => {
       providers: [UsersService]
     }).compile();
 
-    service = module.get<UsersService>(UsersService);
+    service = module.get(UsersService);
   });
 
   it('should be defined', () => {

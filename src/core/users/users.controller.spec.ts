@@ -5,14 +5,14 @@ import { CoreModule } from '../core.module';
 import { UsersController } from './users.controller';
 
 describe('[Core][Users] Controller', () => {
-  let controller: UsersController;
+  let controller: UsersController = null;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       imports: [CoreModule]
     }).compile();
 
-    controller = app.get<UsersController>(UsersController);
+    controller = app.get(UsersController);
   });
 
   it('should be defined', () => {

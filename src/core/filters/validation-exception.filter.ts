@@ -10,7 +10,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
 
     const response = ctx.getResponse<Response>();
 
-    const fields = exception.message.map((error: ValidationError) => ({
+    const fields = exception.errors.map((error: ValidationError) => ({
       field: error.property,
       constraints: Object.keys(error.constraints)
     }));
